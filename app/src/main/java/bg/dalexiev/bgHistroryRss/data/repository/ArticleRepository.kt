@@ -20,14 +20,16 @@ interface ArticleRepository {
 
         override fun loadArticles(): List<Article> {
             return service.loadFeed()
-                .items.map { rssFeedItem ->
+                .items.map { it ->
                 Article(
-                    guid = rssFeedItem.guid,
-                    title = rssFeedItem.title,
-                    link = rssFeedItem.link,
-                    publishDate = rssFeedItem.publishDate,
-                    creator = rssFeedItem.creator,
-                    description = rssFeedItem.description
+                    guid = it.guid,
+                    title = it.title,
+                    link = it.link,
+                    publishDate = it.publishDate,
+                    creator = it.creator,
+                    imageUrl = it.imageUrl,
+                    description = it.description,
+                    categories = it.categories
                 )
             }
         }
