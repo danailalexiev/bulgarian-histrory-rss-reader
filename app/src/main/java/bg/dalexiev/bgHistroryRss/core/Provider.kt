@@ -1,13 +1,13 @@
 package bg.dalexiev.bgHistroryRss.core
 
-abstract class Provider<T> {
+abstract class Provider<T, in P> {
 
     var mock: T? = null
     var original: T? = null
 
-    abstract fun create(): T
+    abstract fun create(param: P): T
 
-    fun get(): T = mock ?: original ?: create().apply { original = this }
+    fun get(param: P): T = mock ?: original ?: create(param).also { original = it }
 
-    fun lazyGet(): Lazy<T> = lazy { get() }
+    fun lazyGet(param: P): Lazy<T> = lazy { get(param) }
 }

@@ -1,5 +1,6 @@
 package bg.dalexiev.bgHistroryRss.data.rss
 
+import android.util.Log
 import bg.dalexiev.bgHistroryRss.core.Provider
 import java.net.HttpURLConnection
 import java.net.URL
@@ -11,9 +12,9 @@ interface RssService {
 
     fun loadFeed(): RssFeed
 
-    companion object : Provider<RssService>() {
+    companion object : Provider<RssService, Unit>() {
 
-        override fun create(): RssService {
+        override fun create(param: Unit): RssService {
             return RssServiceImpl()
         }
 
@@ -31,6 +32,9 @@ interface RssService {
                     connectTimeout = 2000
                 } as HttpURLConnection
                 return connection.inputStream.buffered().use { parser.parseFeed(it) }
+            } catch (e: Throwable) {
+                Log.e("RssService", "Error while loading RSS feed", e)
+                throw e
             } finally {
                 connection?.disconnect()
             }
