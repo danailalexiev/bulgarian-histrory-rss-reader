@@ -18,6 +18,10 @@ class ArticleListActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
 
-        scope.launch { ArticleRepository.get().loadArticles().forEach { it -> Log.d("TEST", it.toString()) } }
+        scope.launch {
+            val repo = ArticleRepository.get(this@ArticleListActivity)
+            repo.sync()
+            repo.loadArticlePreviews(null).forEach { it -> Log.d("TEST", it.toString()) }
+        }
     }
 }

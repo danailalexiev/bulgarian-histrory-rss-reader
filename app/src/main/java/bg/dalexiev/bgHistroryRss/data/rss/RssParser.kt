@@ -1,9 +1,6 @@
 package bg.dalexiev.bgHistroryRss.data.rss
 
 import android.net.Uri
-import android.text.Editable
-import android.text.Html
-import org.xml.sax.XMLReader
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserFactory
 import java.io.InputStream
@@ -86,12 +83,21 @@ class RssParser {
                 }
             }
         }
-        return RssFeedItem(guid = guid, title = title, imageUrl = imageUrl, description = description, publishDate = publishDate, link = link, creator = creator, categories = categories)
+        return RssFeedItem(
+            guid = guid,
+            title = title,
+            imageUrl = imageUrl,
+            description = description,
+            publishDate = publishDate,
+            link = link,
+            creator = creator,
+            categories = categories
+        )
     }
 
     private fun parseGuid(guidLink: String) = Uri.parse(guidLink).getQueryParameter("p")!!
 
-    private fun parseDescription(rawDescription: String) : Pair<String, String> {
+    private fun parseDescription(rawDescription: String): Pair<String, String> {
         val pattern = Pattern.compile(IMG_TAG_REGEX)
         val matcher = pattern.matcher(rawDescription)
         return when {
