@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">Bulgarian History RSS Reader</string>
+
+    <string name="open_navigation">Open Navigation</string>
+    <string name="close_navigation">Close Navigation</string>
+
+    <string name="navigation_item_all">All</string>
+    <string name="navigation_item_unread">Unread</string>
 </resources>
