@@ -6,6 +6,7 @@ import android.view.MenuItem
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
+import bg.dalexiev.bgHistroryRss.article.ArticleListFragment
 import bg.dalexiev.bgHistroryRss.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
@@ -37,6 +38,10 @@ class MainActivity : AppCompatActivity() {
             mDataBinding.drawerLayout.closeDrawers()
             true
         }
+
+        supportFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, ArticleListFragment.newInstance())
+                .commitNow()
     }
 
     override fun onPostCreate(savedInstanceState: Bundle?) {

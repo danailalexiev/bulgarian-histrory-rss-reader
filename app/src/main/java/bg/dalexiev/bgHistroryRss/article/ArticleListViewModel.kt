@@ -14,18 +14,18 @@ import kotlinx.coroutines.withContext
 class ArticleListViewModel(application: Application, private val articleRepo: ArticleRepository) :
     BaseViewModel(application) {
 
-    private val _articleLiveData = MutableLiveData<State<List<ArticlePreview>>>()
+    private val _articles = MutableLiveData<State<List<ArticlePreview>>>()
 
-    val articleLiveData: LiveData<State<List<ArticlePreview>>>
-        get() = _articleLiveData
+    val articles: LiveData<State<List<ArticlePreview>>>
+        get() = _articles
 
     fun loadArticles() = scope.launch {
-        _articleLiveData.value = State.loading()
+        _articles.value = State.loading()
         try {
             withContext(CoroutineDispatchers.io) { articleRepo.loadArticlePreviews(null) }
-                .also { _articleLiveData.value = State.success(it) }
+                .also { _articles.value = State.success(it) }
         } catch (e: Exception) {
-            _articleLiveData.value = State.failure(e)
+            _articles.value = State.failure(e)
         }
     }
 }

@@ -7,11 +7,14 @@ import bg.dalexiev.bgHistroryRss.data.db.converter.CalendarTypeConverter
 import java.util.*
 
 data class ArticlePreview(
-    @ColumnInfo(name = "guid", typeAffinity = ColumnInfo.TEXT)
+    @ColumnInfo(name = "guid")
     val guid: String,
 
-    @ColumnInfo(name = "title", typeAffinity = ColumnInfo.TEXT)
+    @ColumnInfo(name = "title")
     val title: String,
+
+    @ColumnInfo(name = "image_url")
+    val imageUrl: String,
 
     @ColumnInfo(name = "publish_date")
     @field:TypeConverters(CalendarTypeConverter::class)
