@@ -39,9 +39,9 @@ dependencies {
 
     implementation "androidx.appcompat:appcompat:$support_library_version"
     implementation "com.google.android.material:material:$android_material_version"
-    implementation "androidx.constraintlayout:constraintlayout:1.1.3"
+    implementation "androidx.constraintlayout:constraintlayout:$constrain_layout_version"
 
-    kapt "androidx.databinding:databinding-compiler:3.2.1"
+    kapt "androidx.databinding:databinding-compiler:$data_binding_compiler_version"
 
     implementation "androidx.lifecycle:lifecycle-extensions:$lifecycle_version"
     kapt "androidx.lifecycle:lifecycle-compiler:$lifecycle_version"
@@ -49,7 +49,7 @@ dependencies {
     implementation "androidx.room:room-runtime:$room_version"
     kapt "androidx.room:room-compiler:$room_version"
 
-    implementation 'com.squareup.picasso:picasso:2.71828'
+    implementation "com.squareup.picasso:picasso:$picasso_version"
 
     testImplementation 'junit:junit:4.12'
     testImplementation "androidx.arch.core:core-testing:$lifecycle_version"
