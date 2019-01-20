@@ -14,7 +14,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class ArticleListAdapter : RecyclerView.Adapter<ArticleListAdapter.ArticlePreviewViewHolder>() {
+class ArticleListAdapter(private val onShareItemClickListener: (ArticlePreview) -> Unit) :
+    RecyclerView.Adapter<ArticleListAdapter.ArticlePreviewViewHolder>() {
 
     private val data = mutableListOf<ArticlePreview>()
     private val scope = CoroutineScope(CoroutineDispatchers.main)
@@ -25,8 +26,10 @@ class ArticleListAdapter : RecyclerView.Adapter<ArticleListAdapter.ArticlePrevie
         if (!::inflater.isInitialized) {
             inflater = LayoutInflater.from(parent.context)
         }
-
-        return ArticlePreviewViewHolder(inflater.inflate(R.layout.list_item_article, parent, false))
+        return ArticlePreviewViewHolder(
+            inflater.inflate(R.layout.list_item_article, parent, false),
+            onShareItemClickListener
+        )
     }
 
     override fun getItemCount() = data.size
@@ -35,31 +38,39 @@ class ArticleListAdapter : RecyclerView.Adapter<ArticleListAdapter.ArticlePrevie
 
     fun submitList(list: List<ArticlePreview>) {
         scope.launch {
-            val result = withContext(CoroutineDispatchers.default) {DiffUtil.calculateDiff(DiffCallback(data, list)) }
+            val result = withContext(CoroutineDispatchers.default) { DiffUtil.calculateDiff(DiffCallback(data, list)) }
             data.clear()
             data.addAll(list)
             result.dispatchUpdatesTo(this@ArticleListAdapter)
         }
     }
 
-    class ArticlePreviewViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    class ArticlePreviewViewHolder(itemView: View, private val onShareItemClickListener: (ArticlePreview) -> Unit) :
+        RecyclerView.ViewHolder(itemView) {
 
         private val mDataBinding = DataBindingUtil.bind<ListItemArticleBinding>(itemView);
 
         fun bind(item: ArticlePreview) {
-            mDataBinding?.apply { this.item = item }?.executePendingBindings()
+            mDataBinding?.apply {
+                this.item = item
+                articleActionShare.setOnClickListener { onShareItemClickListener(item) }
+            }
+                ?.executePendingBindings()
         }
     }
 
-    private class DiffCallback(private val oldList: List<ArticlePreview>, private val newList: List<ArticlePreview>) : DiffUtil.Callback() {
+    private class DiffCallback(private val oldList: List<ArticlePreview>, private val newList: List<ArticlePreview>) :
+        DiffUtil.Callback() {
 
         override fun getOldListSize() = oldList.size
 
         override fun getNewListSize() = newList.size
 
-        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int) = oldList[oldItemPosition].guid == newList[newItemPosition].guid
+        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int) =
+            oldList[oldItemPosition].guid == newList[newItemPosition].guid
 
-        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int) = oldList[oldItemPosition] == newList[newItemPosition]
+        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int) =
+            oldList[oldItemPosition] == newList[newItemPosition]
 
     }
 }

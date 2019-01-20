@@ -16,6 +16,9 @@ data class ArticlePreview(
     @ColumnInfo(name = "image_url")
     val imageUrl: String,
 
+    @ColumnInfo(name = "link")
+    val link: String,
+
     @ColumnInfo(name = "publish_date")
     @field:TypeConverters(CalendarTypeConverter::class)
     val publishDate: Calendar,

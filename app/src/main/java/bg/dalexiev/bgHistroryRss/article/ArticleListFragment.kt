@@ -36,7 +36,9 @@ class ArticleListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        mAdapter = ArticleListAdapter()
+        mAdapter = ArticleListAdapter(
+            onShareItemClickListener = { mViewModel.onShareArticleClicked(this@ArticleListFragment.activity!!, it) }
+        )
         mDataBinding.articleList.apply {
             layoutManager = LinearLayoutManager(context)
             addItemDecoration(ItemOffsetDecoration(resources.getDimensionPixelSize(R.dimen.article_list_item_margin)))
@@ -56,6 +58,14 @@ class ArticleListFragment : Fragment() {
                     mDataBinding.swipeRefresh.isRefreshing = false
                     Toast.makeText(this@ArticleListFragment.context, "Error while loading articles", Toast.LENGTH_LONG)
                         .show()
+                }
+            }
+        })
+
+        mViewModel.sharedArticle.observe(this, Observer {
+            it?.getContentIfNotHandled()?.let { intent ->
+                intent.resolveActivity(this@ArticleListFragment.activity!!.packageManager)?.let {
+                    startActivity(intent)
                 }
             }
         })

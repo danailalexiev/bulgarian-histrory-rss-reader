@@ -1,10 +1,14 @@
 package bg.dalexiev.bgHistroryRss.article
 
+import android.app.Activity
 import android.app.Application
+import android.content.Intent
+import androidx.core.app.ShareCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import bg.dalexiev.bgHistroryRss.core.BaseViewModel
 import bg.dalexiev.bgHistroryRss.core.CoroutineDispatchers
+import bg.dalexiev.bgHistroryRss.core.Event
 import bg.dalexiev.bgHistroryRss.core.State
 import bg.dalexiev.bgHistroryRss.data.entity.ArticlePreview
 import bg.dalexiev.bgHistroryRss.data.repository.ArticleRepository
@@ -18,6 +22,11 @@ class ArticleListViewModel(application: Application, private val articleRepo: Ar
 
     val articles: LiveData<State<List<ArticlePreview>>>
         get() = _articles
+
+    private val _sharedArticle = MutableLiveData<Event<Intent>>()
+
+    val sharedArticle: LiveData<Event<Intent>>
+        get() = _sharedArticle
 
     fun loadArticles() = scope.launch {
         _articles.value = State.loading()
@@ -40,4 +49,11 @@ class ArticleListViewModel(application: Application, private val articleRepo: Ar
             _articles.value = State.failure(e)
         }
     }
+
+    fun onShareArticleClicked(activity: Activity, article: ArticlePreview): Unit =
+        ShareCompat.IntentBuilder.from(activity)
+            .setType("texp/plain")
+            .setText(article.link)
+            .intent
+            .run { _sharedArticle.value = Event(this) }
 }
