@@ -28,4 +28,16 @@ class ArticleListViewModel(application: Application, private val articleRepo: Ar
             _articles.value = State.failure(e)
         }
     }
+
+    fun sync() = scope.launch {
+        _articles.value = State.loading()
+        try {
+            withContext(CoroutineDispatchers.io) {
+                articleRepo.sync();
+                return@withContext articleRepo.loadArticlePreviews(null)
+            }.also { _articles.value = State.success(it) }
+        } catch (e: Exception) {
+            _articles.value = State.failure(e)
+        }
+    }
 }

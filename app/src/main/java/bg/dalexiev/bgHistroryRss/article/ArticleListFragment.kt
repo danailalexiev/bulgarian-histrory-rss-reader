@@ -43,6 +43,8 @@ class ArticleListFragment : Fragment() {
             adapter = mAdapter
         }
 
+        mDataBinding.swipeRefresh.setOnRefreshListener { mViewModel.sync() }
+
         mViewModel.articles.observe(this, Observer { state ->
             when (state) {
                 is State.Loading -> mDataBinding.swipeRefresh.isRefreshing = true
