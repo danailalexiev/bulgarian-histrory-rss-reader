@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 import bg.dalexiev.bgHistroryRss.App
 import bg.dalexiev.bgHistroryRss.R
 import bg.dalexiev.bgHistroryRss.core.State
+import bg.dalexiev.bgHistroryRss.data.entity.ArticlePreview
 import bg.dalexiev.bgHistroryRss.databinding.FragmentArticleListBinding
 
 class ArticleListFragment : Fragment() {
@@ -37,7 +38,13 @@ class ArticleListFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         mAdapter = ArticleListAdapter(
-            onShareItemClickListener = { mViewModel.onShareArticleClicked(this@ArticleListFragment.activity!!, it) }
+            onShareItemClickListener = { mViewModel.onShareArticleClicked(this@ArticleListFragment.activity!!, it) },
+            onFavouriteItemClickListener = { position: Int, article: ArticlePreview ->
+                mViewModel.onToggleArticleClicked(
+                    position,
+                    article
+                )
+            }
         )
         mDataBinding.articleList.apply {
             layoutManager = LinearLayoutManager(context)
@@ -67,6 +74,13 @@ class ArticleListFragment : Fragment() {
                 intent.resolveActivity(this@ArticleListFragment.activity!!.packageManager)?.let {
                     startActivity(intent)
                 }
+            }
+        })
+
+        mViewModel.updatedArticle.observe(this, Observer { state ->
+            when (state) {
+                is State.Success -> mAdapter.updateItem(state.value.first, state.value.second)
+                is State.Failure -> Toast.makeText(this@ArticleListFragment.context, "Could not update article", Toast.LENGTH_LONG).show()
             }
         })
     }

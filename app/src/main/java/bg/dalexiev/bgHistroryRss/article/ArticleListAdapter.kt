@@ -14,7 +14,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class ArticleListAdapter(private val onShareItemClickListener: (ArticlePreview) -> Unit) :
+class ArticleListAdapter(
+    private val onShareItemClickListener: (ArticlePreview) -> Unit,
+    private val onFavouriteItemClickListener: (Int, ArticlePreview) -> Unit
+) :
     RecyclerView.Adapter<ArticleListAdapter.ArticlePreviewViewHolder>() {
 
     private val data = mutableListOf<ArticlePreview>()
@@ -28,13 +31,15 @@ class ArticleListAdapter(private val onShareItemClickListener: (ArticlePreview) 
         }
         return ArticlePreviewViewHolder(
             inflater.inflate(R.layout.list_item_article, parent, false),
-            onShareItemClickListener
+            onShareItemClickListener,
+            onFavouriteItemClickListener
         )
     }
 
     override fun getItemCount() = data.size
 
-    override fun onBindViewHolder(holder: ArticlePreviewViewHolder, position: Int) = holder.bind(data[position])
+    override fun onBindViewHolder(holder: ArticlePreviewViewHolder, position: Int) =
+        holder.bind(position, data[position])
 
     fun submitList(list: List<ArticlePreview>) {
         scope.launch {
@@ -45,15 +50,26 @@ class ArticleListAdapter(private val onShareItemClickListener: (ArticlePreview) 
         }
     }
 
-    class ArticlePreviewViewHolder(itemView: View, private val onShareItemClickListener: (ArticlePreview) -> Unit) :
+    fun updateItem(position: Int, article: ArticlePreview) {
+        data.removeAt(position)
+        data.add(position, article)
+        notifyItemChanged(position)
+    }
+
+    class ArticlePreviewViewHolder(
+        itemView: View,
+        private val onShareItemClickListener: (ArticlePreview) -> Unit,
+        private val onFavouriteItemClickListener: (Int, ArticlePreview) -> Unit
+    ) :
         RecyclerView.ViewHolder(itemView) {
 
         private val mDataBinding = DataBindingUtil.bind<ListItemArticleBinding>(itemView);
 
-        fun bind(item: ArticlePreview) {
+        fun bind(position: Int, item: ArticlePreview) {
             mDataBinding?.apply {
                 this.item = item
                 articleActionShare.setOnClickListener { onShareItemClickListener(item) }
+                articleActionFavourite.setOnClickListener { onFavouriteItemClickListener(position, item) }
             }
                 ?.executePendingBindings()
         }

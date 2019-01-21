@@ -28,15 +28,10 @@ class ArticleListViewModel(application: Application, private val articleRepo: Ar
     val sharedArticle: LiveData<Event<Intent>>
         get() = _sharedArticle
 
-    fun loadArticles() = scope.launch {
-        _articles.value = State.loading()
-        try {
-            withContext(CoroutineDispatchers.io) { articleRepo.loadArticlePreviews(null) }
-                .also { _articles.value = State.success(it) }
-        } catch (e: Exception) {
-            _articles.value = State.failure(e)
-        }
-    }
+    private val _updatedArticle = MutableLiveData<State<Pair<Int, ArticlePreview>>>()
+
+    val updatedArticle: LiveData<State<Pair<Int, ArticlePreview>>>
+        get() = _updatedArticle
 
     fun sync() = scope.launch {
         _articles.value = State.loading()
@@ -50,10 +45,29 @@ class ArticleListViewModel(application: Application, private val articleRepo: Ar
         }
     }
 
+    fun loadArticles() = scope.launch {
+        _articles.value = State.loading()
+        try {
+            withContext(CoroutineDispatchers.io) { articleRepo.loadArticlePreviews(null) }
+                .also { _articles.value = State.success(it) }
+        } catch (e: Exception) {
+            _articles.value = State.failure(e)
+        }
+    }
+
     fun onShareArticleClicked(activity: Activity, article: ArticlePreview): Unit =
         ShareCompat.IntentBuilder.from(activity)
             .setType("texp/plain")
             .setText(article.link)
             .intent
             .run { _sharedArticle.value = Event(this) }
+
+    fun onToggleArticleClicked(position: Int, article: ArticlePreview) = scope.launch {
+        try {
+            withContext(CoroutineDispatchers.io) { articleRepo.toggleArticleIsFavourite(article) }
+                .also { _updatedArticle.value = State.success(Pair(position, it)) }
+        } catch (e: Exception) {
+            _updatedArticle.value = State.failure(e)
+        }
+    }
 }
