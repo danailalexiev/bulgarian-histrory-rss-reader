@@ -15,9 +15,11 @@ import bg.dalexiev.bgHistroryRss.data.rss.RssService
 
 interface ArticleRepository {
 
+    fun sync()
+
     fun loadArticlePreviews(category: Category?): List<ArticlePreview>
 
-    fun sync()
+    fun toggleArticleIsFavourite(article: ArticlePreview): ArticlePreview
 
     companion object : Provider<ArticleRepository, Context>() {
 
@@ -41,7 +43,6 @@ interface ArticleRepository {
         private val articleToCategoryJoinDao: ArticleToCategoryJoinDao,
         private val db: ArticleDatabase
     ) : ArticleRepository {
-
         override fun sync() {
             decomposition(service.loadFeed().items).also { persist(it) }
         }
@@ -81,6 +82,11 @@ interface ArticleRepository {
 
         override fun loadArticlePreviews(category: Category?): List<ArticlePreview> =
             category?.let { articleDao.loadArticlePreviewsByCategory(it.id!!) } ?: articleDao.loadArticlePreviews()
+
+        override fun toggleArticleIsFavourite(article: ArticlePreview): ArticlePreview {
+            articleDao.toggleArticleIsFavourite(article.guid)
+            return article.copy(isFavourite = !article.isFavourite)
+        }
 
     }
 }
