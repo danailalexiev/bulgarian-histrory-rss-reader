@@ -6,4 +6,6 @@
 
     <string name="navigation_item_all">All</string>
     <string name="navigation_item_unread">Unread</string>
+
+    <string name="article_link_label">Read more …</string>
 </resources>
