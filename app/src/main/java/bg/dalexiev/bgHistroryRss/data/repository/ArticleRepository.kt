@@ -21,6 +21,8 @@ interface ArticleRepository {
 
     fun toggleArticleIsFavourite(article: ArticlePreview): ArticlePreview
 
+    fun loadArticleByGuid(guid: String): Article
+
     companion object : Provider<ArticleRepository, Context>() {
 
         override fun create(param: Context): ArticleRepository {
@@ -87,6 +89,8 @@ interface ArticleRepository {
             articleDao.toggleArticleIsFavourite(article.guid)
             return article.copy(isFavourite = !article.isFavourite)
         }
+
+        override fun loadArticleByGuid(guid: String): Article = articleDao.loadArticleByGuid(guid)
 
     }
 }

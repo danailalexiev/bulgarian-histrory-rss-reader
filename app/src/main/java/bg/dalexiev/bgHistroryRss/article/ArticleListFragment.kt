@@ -5,11 +5,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.MediaController
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.navigation.NavController
+import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import bg.dalexiev.bgHistroryRss.App
@@ -23,6 +26,8 @@ class ArticleListFragment : Fragment() {
     private lateinit var mDataBinding: FragmentArticleListBinding
 
     private lateinit var mAdapter: ArticleListAdapter
+
+    private lateinit var mNavController: NavController
 
     private val mViewModel by lazy {
         ViewModelProviders.of(activity!!, (context!!.applicationContext as App).viewModelFactory)
@@ -44,7 +49,8 @@ class ArticleListFragment : Fragment() {
                     position,
                     article
                 )
-            }
+            },
+            onItemClickListener = { mViewModel.onArticleClicked(it) }
         )
         mDataBinding.articleList.apply {
             layoutManager = LinearLayoutManager(context)
@@ -80,7 +86,19 @@ class ArticleListFragment : Fragment() {
         mViewModel.updatedArticle.observe(this, Observer { state ->
             when (state) {
                 is State.Success -> mAdapter.updateItem(state.value.first, state.value.second)
-                is State.Failure -> Toast.makeText(this@ArticleListFragment.context, "Could not update article", Toast.LENGTH_LONG).show()
+                is State.Failure -> Toast.makeText(
+                    this@ArticleListFragment.context,
+                    "Could not update article",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        })
+
+        mViewModel.selectedArticle.observe(this, Observer {
+            it?.getContentIfNotHandled()?.let { articlePreview ->
+                val args = Bundle().apply { putString(ArticleDetailsFragment.EXTRA_ARTICLE_GUID, articlePreview.guid) }
+                mNavController
+                    .navigate(R.id.action_articleListFragment_to_articleDetailsFragment, args)
             }
         })
     }
@@ -88,13 +106,9 @@ class ArticleListFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
+        mNavController = Navigation.findNavController(activity!!, R.id.nav_host_fragment);
+
         mViewModel.loadArticles()
-    }
-
-    companion object {
-
-        fun newInstance() = ArticleListFragment()
-
     }
 
     private class ItemOffsetDecoration(private val marginInPixels: Int) : RecyclerView.ItemDecoration() {
