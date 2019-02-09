@@ -44,7 +44,8 @@ class ArticleListFragment : Fragment() {
                     position,
                     article
                 )
-            }
+            },
+            onItemClickListener = { mViewModel.onArticleClicked(it) }
         )
         mDataBinding.articleList.apply {
             layoutManager = LinearLayoutManager(context)
@@ -80,7 +81,21 @@ class ArticleListFragment : Fragment() {
         mViewModel.updatedArticle.observe(this, Observer { state ->
             when (state) {
                 is State.Success -> mAdapter.updateItem(state.value.first, state.value.second)
-                is State.Failure -> Toast.makeText(this@ArticleListFragment.context, "Could not update article", Toast.LENGTH_LONG).show()
+                is State.Failure -> Toast.makeText(
+                    this@ArticleListFragment.context,
+                    "Could not update article",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        })
+
+        mViewModel.selectedArticle.observe(this, Observer {
+            it?.getContentIfNotHandled()?.let {articlePreview ->
+                activity
+                    ?.supportFragmentManager
+                    ?.beginTransaction()
+                    ?.replace(R.id.fragment_container, ArticleDetailsFragment.newInstance(articlePreview.guid))
+                    ?.commitNow()
             }
         })
     }

@@ -16,7 +16,8 @@ import kotlinx.coroutines.withContext
 
 class ArticleListAdapter(
     private val onShareItemClickListener: (ArticlePreview) -> Unit,
-    private val onFavouriteItemClickListener: (Int, ArticlePreview) -> Unit
+    private val onFavouriteItemClickListener: (Int, ArticlePreview) -> Unit,
+    private val onItemClickListener: (ArticlePreview) -> Unit
 ) :
     RecyclerView.Adapter<ArticleListAdapter.ArticlePreviewViewHolder>() {
 
@@ -32,7 +33,8 @@ class ArticleListAdapter(
         return ArticlePreviewViewHolder(
             inflater.inflate(R.layout.list_item_article, parent, false),
             onShareItemClickListener,
-            onFavouriteItemClickListener
+            onFavouriteItemClickListener,
+            onItemClickListener
         )
     }
 
@@ -59,7 +61,8 @@ class ArticleListAdapter(
     class ArticlePreviewViewHolder(
         itemView: View,
         private val onShareItemClickListener: (ArticlePreview) -> Unit,
-        private val onFavouriteItemClickListener: (Int, ArticlePreview) -> Unit
+        private val onFavouriteItemClickListener: (Int, ArticlePreview) -> Unit,
+        private val onItemClickListener: (ArticlePreview) -> Unit
     ) :
         RecyclerView.ViewHolder(itemView) {
 
@@ -70,6 +73,7 @@ class ArticleListAdapter(
                 this.item = item
                 articleActionShare.setOnClickListener { onShareItemClickListener(item) }
                 articleActionFavourite.setOnClickListener { onFavouriteItemClickListener(position, item) }
+                root.setOnClickListener { onItemClickListener(item) }
             }
                 ?.executePendingBindings()
         }

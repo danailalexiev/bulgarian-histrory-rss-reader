@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="android.text.format.DateUtils" />
+        <import type="java.util.Calendar" />
+
+        <variable name="article"
+                  type="bg.dalexiev.bgHistroryRss.data.entity.Article"/>
+
+    </data>
+
+    <ScrollView
+            android:id="@+id/article_details_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="16dp">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/article_image"
+                    android:layout_width="0dp"
+                    android:layout_height="256dp"
+                    android:imageUrl="@{article.imageUrl}"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"/>
+
+            <TextView
+                    android:id="@+id/article_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:textAppearance="@style/TextAppearance.MaterialComponents.Headline4"
+                    android:text="@{article.title}"
+                    app:layout_constraintTop_toBottomOf="@id/article_image"
+                    app:layout_constraintStart_toStartOf="parent"
+                    tools:text="An awesome title"/>
+
+            <TextView
+                    android:id="@+id/article_author"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+                    android:text="@{article.creator}"
+                    app:layout_constraintStart_toStartOf="@id/article_title"
+                    app:layout_constraintTop_toBottomOf="@id/article_title"
+                    tools:text="Don Knots"/>
+
+            <TextView
+                    android:id="@+id/article_publish_date"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+                    android:text="@{DateUtils.getRelativeTimeSpanString(article.publishDate.timeInMillis, Calendar.getInstance().timeInMillis, DateUtils.DAY_IN_MILLIS)}"
+                    app:layout_constraintTop_toBottomOf="@id/article_author"
+                    app:layout_constraintStart_toStartOf="@id/article_author"
+                    tools:text="2 days ago"/>
+
+            <TextView
+                    android:id="@+id/article_body"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="32dp"
+                    android:singleLine="false"
+                    android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+                    android:text="@{article.description}"
+                    app:layout_constraintTop_toBottomOf="@id/article_publish_date"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut auctor finibus augue, ac condimentum diam. Etiam eget justo sem. Ut."/>
+
+            <TextView
+                    android:id="@+id/article_link"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+                    android:text="@string/article_link_label"
+                    app:layout_constraintTop_toBottomOf="@id/article_body"
+                    app:layout_constraintStart_toStartOf="parent"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+</layout>

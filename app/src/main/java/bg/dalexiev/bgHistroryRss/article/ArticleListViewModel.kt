@@ -19,19 +19,21 @@ class ArticleListViewModel(application: Application, private val articleRepo: Ar
     BaseViewModel(application) {
 
     private val _articles = MutableLiveData<State<List<ArticlePreview>>>()
-
     val articles: LiveData<State<List<ArticlePreview>>>
         get() = _articles
 
     private val _sharedArticle = MutableLiveData<Event<Intent>>()
-
     val sharedArticle: LiveData<Event<Intent>>
         get() = _sharedArticle
 
     private val _updatedArticle = MutableLiveData<State<Pair<Int, ArticlePreview>>>()
-
     val updatedArticle: LiveData<State<Pair<Int, ArticlePreview>>>
         get() = _updatedArticle
+
+    private val _selectedArticle = MutableLiveData<Event<ArticlePreview>>()
+    val selectedArticle: LiveData<Event<ArticlePreview>>
+        get() = _selectedArticle
+
 
     fun sync() = scope.launch {
         _articles.value = State.loading()
@@ -69,5 +71,9 @@ class ArticleListViewModel(application: Application, private val articleRepo: Ar
         } catch (e: Exception) {
             _updatedArticle.value = State.failure(e)
         }
+    }
+
+    fun onArticleClicked(article: ArticlePreview) {
+        _selectedArticle.value = Event(article)
     }
 }
