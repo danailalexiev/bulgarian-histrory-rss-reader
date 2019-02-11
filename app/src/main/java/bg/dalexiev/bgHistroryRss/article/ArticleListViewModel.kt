@@ -30,30 +30,34 @@ class ArticleListViewModel(application: Application, private val articleRepo: Ar
     val updatedArticle: LiveData<State<Pair<Int, ArticlePreview>>>
         get() = _updatedArticle
 
-    private val _selectedArticle = MutableLiveData<Event<ArticlePreview>>()
-    val selectedArticle: LiveData<Event<ArticlePreview>>
+    private val _selectedArticle = MutableLiveData<Event<Pair<Int, ArticlePreview>>>()
+    val selectedArticle: LiveData<Event<Pair<Int, ArticlePreview>>>
         get() = _selectedArticle
 
 
-    fun sync() = scope.launch {
-        _articles.value = State.loading()
-        try {
-            withContext(CoroutineDispatchers.io) {
-                articleRepo.sync();
-                return@withContext articleRepo.loadArticlePreviews(null)
-            }.also { _articles.value = State.success(it) }
-        } catch (e: Exception) {
-            _articles.value = State.failure(e)
+    fun sync() {
+        scope.launch {
+            _articles.value = State.loading()
+            try {
+                withContext(CoroutineDispatchers.io) {
+                    articleRepo.sync();
+                    return@withContext articleRepo.loadArticlePreviews(null)
+                }.also { _articles.value = State.success(it) }
+            } catch (e: Exception) {
+                _articles.value = State.failure(e)
+            }
         }
     }
 
-    fun loadArticles() = scope.launch {
-        _articles.value = State.loading()
-        try {
-            withContext(CoroutineDispatchers.io) { articleRepo.loadArticlePreviews(null) }
-                .also { _articles.value = State.success(it) }
-        } catch (e: Exception) {
-            _articles.value = State.failure(e)
+    fun loadArticles() {
+        scope.launch {
+            _articles.value = State.loading()
+            try {
+                withContext(CoroutineDispatchers.io) { articleRepo.loadArticlePreviews(null) }
+                    .also { _articles.value = State.success(it) }
+            } catch (e: Exception) {
+                _articles.value = State.failure(e)
+            }
         }
     }
 
@@ -64,16 +68,18 @@ class ArticleListViewModel(application: Application, private val articleRepo: Ar
             .intent
             .run { _sharedArticle.value = Event(this) }
 
-    fun onToggleArticleClicked(position: Int, article: ArticlePreview) = scope.launch {
-        try {
-            withContext(CoroutineDispatchers.io) { articleRepo.toggleArticleIsFavourite(article) }
-                .also { _updatedArticle.value = State.success(Pair(position, it)) }
-        } catch (e: Exception) {
-            _updatedArticle.value = State.failure(e)
+    fun onToggleArticleClicked(position: Int, article: ArticlePreview) {
+        scope.launch {
+            try {
+                withContext(CoroutineDispatchers.io) { articleRepo.toggleArticleIsFavourite(article) }
+                    .also { _updatedArticle.value = State.success(position to it) }
+            } catch (e: Exception) {
+                _updatedArticle.value = State.failure(e)
+            }
         }
     }
 
-    fun onArticleClicked(article: ArticlePreview) {
-        _selectedArticle.value = Event(article)
+    fun onArticleClicked(position: Int, article: ArticlePreview) {
+        _selectedArticle.value = Event(position to article)
     }
 }

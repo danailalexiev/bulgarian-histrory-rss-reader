@@ -4,11 +4,16 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewTreeObserver
 import android.widget.Toast
+import androidx.core.view.ViewCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.transition.ChangeBounds
+import androidx.transition.ChangeTransform
+import androidx.transition.TransitionSet
 import bg.dalexiev.bgHistroryRss.App
 import bg.dalexiev.bgHistroryRss.R
 import bg.dalexiev.bgHistroryRss.core.State
@@ -25,21 +30,40 @@ class ArticleDetailsFragment : Fragment() {
     private lateinit var mDataBinding: FragmentArticleDetailsBinding
 
     private val mViewModel by lazy {
-        ViewModelProviders.of(activity!!, (context!!.applicationContext as App).viewModelFactory)
+        ViewModelProviders.of(this, (context!!.applicationContext as App).viewModelFactory)
             .get(ArticleDetailsViewModel::class.java)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?) =
-        DataBindingUtil.inflate<FragmentArticleDetailsBinding>(
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        sharedElementEnterTransition = TransitionSet()
+            .setOrdering(TransitionSet.ORDERING_TOGETHER)
+            .addTransition(ChangeBounds())
+            .addTransition(ChangeTransform())
+
+    }
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        postponeEnterTransition()
+
+        return DataBindingUtil.inflate<FragmentArticleDetailsBinding>(
             inflater,
             R.layout.fragment_article_details,
             container,
             false
         )
-            .also { mDataBinding = it }
+            .also {
+                mDataBinding = it
+                mDataBinding.viewModel = mViewModel
+            }
             .let { it.root }
+    }
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        ViewCompat.setTransitionName(mDataBinding.root, "article_${arguments?.getString(EXTRA_ARTICLE_GUID)}")
+
         mViewModel.article.observe(this, Observer { state ->
             when (state) {
                 is State.Success -> {
@@ -55,6 +79,23 @@ class ArticleDetailsFragment : Fragment() {
                 }
             }
         })
+
+        mViewModel.imageLoaded.observe(this, Observer {
+            it?.getContentIfNotHandled()?.let { scheduleStartPostponedEnterTransition() }
+        })
+    }
+
+    private fun scheduleStartPostponedEnterTransition() {
+        with(mDataBinding.articleImage.viewTreeObserver) {
+            addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
+                override fun onPreDraw(): Boolean {
+                    removeOnPreDrawListener(this)
+
+                    startPostponedEnterTransition()
+                    return true
+                }
+            })
+        }
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
