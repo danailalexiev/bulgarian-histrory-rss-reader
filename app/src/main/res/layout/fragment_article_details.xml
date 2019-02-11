@@ -5,11 +5,14 @@
 
     <data>
 
-        <import type="android.text.format.DateUtils" />
-        <import type="java.util.Calendar" />
+        <import type="android.text.format.DateUtils"/>
+        <import type="java.util.Calendar"/>
 
         <variable name="article"
                   type="bg.dalexiev.bgHistroryRss.data.entity.Article"/>
+
+        <variable name="viewModel"
+                  type="bg.dalexiev.bgHistroryRss.article.ArticleDetailsViewModel"/>
 
     </data>
 
@@ -17,7 +20,8 @@
             android:id="@+id/article_details_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:fillViewport="true">
+            android:fillViewport="true"
+            android:transitionGroup="true" tools:targetApi="lollipop">
 
         <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
@@ -29,6 +33,7 @@
                     android:layout_width="0dp"
                     android:layout_height="256dp"
                     android:imageUrl="@{article.imageUrl}"
+                    android:imageCallback="@{() -> viewModel.onArticleImageLoaded()}"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"/>

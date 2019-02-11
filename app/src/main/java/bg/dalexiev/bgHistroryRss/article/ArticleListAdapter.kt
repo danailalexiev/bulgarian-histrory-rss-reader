@@ -3,27 +3,23 @@ package bg.dalexiev.bgHistroryRss.article
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.ViewCompat
 import androidx.databinding.DataBindingUtil
+import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import bg.dalexiev.bgHistroryRss.R
-import bg.dalexiev.bgHistroryRss.core.CoroutineDispatchers
 import bg.dalexiev.bgHistroryRss.data.entity.ArticlePreview
 import bg.dalexiev.bgHistroryRss.databinding.ListItemArticleBinding
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class ArticleListAdapter(
     private val onShareItemClickListener: (ArticlePreview) -> Unit,
     private val onFavouriteItemClickListener: (Int, ArticlePreview) -> Unit,
-    private val onItemClickListener: (ArticlePreview) -> Unit
+    private val onItemClickListener: (Int, ArticlePreview) -> Unit
 ) :
     RecyclerView.Adapter<ArticleListAdapter.ArticlePreviewViewHolder>() {
 
-    private val data = mutableListOf<ArticlePreview>()
-    private val scope = CoroutineScope(CoroutineDispatchers.main)
-
+    private val differ = AsyncListDiffer<ArticlePreview>(this, DIFF_CALLBACK)
     private lateinit var inflater: LayoutInflater
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ArticlePreviewViewHolder {
@@ -38,59 +34,49 @@ class ArticleListAdapter(
         )
     }
 
-    override fun getItemCount() = data.size
+    override fun getItemCount() = differ.currentList.size
 
     override fun onBindViewHolder(holder: ArticlePreviewViewHolder, position: Int) =
-        holder.bind(position, data[position])
+        holder.bind(position, differ.currentList[position])
 
     fun submitList(list: List<ArticlePreview>) {
-        scope.launch {
-            val result = withContext(CoroutineDispatchers.default) { DiffUtil.calculateDiff(DiffCallback(data, list)) }
-            data.clear()
-            data.addAll(list)
-            result.dispatchUpdatesTo(this@ArticleListAdapter)
-        }
+        differ.submitList(list)
     }
 
     fun updateItem(position: Int, article: ArticlePreview) {
-        data.removeAt(position)
-        data.add(position, article)
-        notifyItemChanged(position)
+//        differ.currentList.removeAt(position)
+//        differ.currentList.add(position, article)
+//        notifyItemChanged(position)
     }
 
     class ArticlePreviewViewHolder(
         itemView: View,
         private val onShareItemClickListener: (ArticlePreview) -> Unit,
         private val onFavouriteItemClickListener: (Int, ArticlePreview) -> Unit,
-        private val onItemClickListener: (ArticlePreview) -> Unit
+        private val onItemClickListener: (Int, ArticlePreview) -> Unit
     ) :
         RecyclerView.ViewHolder(itemView) {
 
         private val mDataBinding = DataBindingUtil.bind<ListItemArticleBinding>(itemView);
 
         fun bind(position: Int, item: ArticlePreview) {
+            ViewCompat.setTransitionName(itemView, "article_${item.guid}")
             mDataBinding?.apply {
                 this.item = item
                 articleActionShare.setOnClickListener { onShareItemClickListener(item) }
                 articleActionFavourite.setOnClickListener { onFavouriteItemClickListener(position, item) }
-                root.setOnClickListener { onItemClickListener(item) }
+                root.setOnClickListener { onItemClickListener(adapterPosition, item) }
             }
                 ?.executePendingBindings()
         }
     }
 
-    private class DiffCallback(private val oldList: List<ArticlePreview>, private val newList: List<ArticlePreview>) :
-        DiffUtil.Callback() {
+    private object DIFF_CALLBACK : DiffUtil.ItemCallback<ArticlePreview>() {
 
-        override fun getOldListSize() = oldList.size
+        override fun areItemsTheSame(oldItem: ArticlePreview, newItem: ArticlePreview) = oldItem.guid == newItem.guid
 
-        override fun getNewListSize() = newList.size
 
-        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int) =
-            oldList[oldItemPosition].guid == newList[newItemPosition].guid
-
-        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int) =
-            oldList[oldItemPosition] == newList[newItemPosition]
+        override fun areContentsTheSame(oldItem: ArticlePreview, newItem: ArticlePreview) = oldItem == newItem
 
     }
 }
