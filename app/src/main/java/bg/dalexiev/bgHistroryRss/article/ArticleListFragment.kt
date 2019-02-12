@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.app.ShareCompat
 import androidx.core.view.ViewCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -58,7 +59,7 @@ class ArticleListFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         mAdapter = ArticleListAdapter(
-            onShareItemClickListener = { mViewModel.onShareArticleClicked(this@ArticleListFragment.activity!!, it) },
+            onShareItemClickListener = mViewModel::onShareArticleClicked,
             onFavouriteItemClickListener = mViewModel::onToggleArticleClicked,
             onItemClickListener = mViewModel::onArticleClicked
         )
@@ -86,21 +87,15 @@ class ArticleListFragment : Fragment() {
         })
 
         mViewModel.sharedArticle.observe(this, Observer {
-            it?.getContentIfNotHandled()?.let { intent ->
-                intent.resolveActivity(this@ArticleListFragment.activity!!.packageManager)?.let {
-                    startActivity(intent)
+            it?.getContentIfNotHandled()?.let { link ->
+                with(
+                    ShareCompat.IntentBuilder.from(activity)
+                        .setType("texp/plain")
+                        .setText(link)
+                        .intent
+                ) {
+                    resolveActivity(activity!!.packageManager)?.let { startActivity(this) }
                 }
-            }
-        })
-
-        mViewModel.updatedArticle.observe(this, Observer { state ->
-            when (state) {
-                is State.Success -> mAdapter.updateItem(state.value.first, state.value.second)
-                is State.Failure -> Toast.makeText(
-                    this@ArticleListFragment.context,
-                    "Could not update article",
-                    Toast.LENGTH_LONG
-                ).show()
             }
         })
 
@@ -126,8 +121,6 @@ class ArticleListFragment : Fragment() {
         super.onActivityCreated(savedInstanceState)
 
         mNavController = Navigation.findNavController(activity!!, R.id.nav_host_fragment);
-
-        mViewModel.loadArticles()
     }
 
     private class ItemOffsetDecoration(private val marginInPixels: Int) : RecyclerView.ItemDecoration() {
