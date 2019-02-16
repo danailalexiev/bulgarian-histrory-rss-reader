@@ -22,7 +22,7 @@ interface ArticleRepository {
 
     fun toggleArticleIsFavourite(article: ArticlePreview): ArticlePreview
 
-    fun loadArticleByGuid(guid: String): Article
+    fun loadArticleByGuid(guid: String): LiveData<Article>
 
     companion object : Provider<ArticleRepository, Context>() {
 
@@ -91,7 +91,7 @@ interface ArticleRepository {
             return article.copy(isFavourite = !article.isFavourite)
         }
 
-        override fun loadArticleByGuid(guid: String): Article = articleDao.loadArticleByGuid(guid)
+        override fun loadArticleByGuid(guid: String) = articleDao.loadArticleByGuid(guid)
 
     }
 }

@@ -11,7 +11,6 @@ import androidx.core.view.ViewCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.FragmentNavigatorExtras
@@ -21,7 +20,6 @@ import androidx.transition.ChangeBounds
 import androidx.transition.ChangeTransform
 import androidx.transition.Fade
 import androidx.transition.TransitionSet
-import bg.dalexiev.bgHistroryRss.App
 import bg.dalexiev.bgHistroryRss.R
 import bg.dalexiev.bgHistroryRss.core.Event
 import bg.dalexiev.bgHistroryRss.core.getViewModel
