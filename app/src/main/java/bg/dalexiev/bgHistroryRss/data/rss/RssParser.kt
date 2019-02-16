@@ -13,19 +13,11 @@ private const val DATE_PATTERN = "EEE, d MMM yyyy HH:mm:ss Z"
 
 class RssParser {
 
-    private val xmlParser: XmlPullParser;
-    private val imgTagPattern: Pattern;
-    private val dateFormat: SimpleDateFormat;
-
-    init {
-        xmlParser = XmlPullParserFactory.newInstance().apply {
-            isNamespaceAware = true
-        }.newPullParser()
-
-        imgTagPattern = Pattern.compile(IMG_TAG_REGEX)
-
-        dateFormat = SimpleDateFormat(DATE_PATTERN, Locale.getDefault())
-    }
+    private val xmlParser: XmlPullParser = XmlPullParserFactory.newInstance().apply {
+        isNamespaceAware = true
+    }.newPullParser()
+    private val imgTagPattern: Pattern = Pattern.compile(IMG_TAG_REGEX)
+    private val dateFormat: SimpleDateFormat = SimpleDateFormat(DATE_PATTERN, Locale.ENGLISH)
 
     fun parseFeed(inputStream: InputStream): RssFeed {
         xmlParser.setInput(inputStream, null)
@@ -113,7 +105,8 @@ class RssParser {
         }
     }
 
-    private fun parseDate(dateString: String)= dateFormat.parse(dateString).let { Calendar.getInstance().apply { time = it }}
+    private fun parseDate(dateString: String) =
+        dateFormat.parse(dateString).let { Calendar.getInstance().apply { time = it } }
 }
 
 

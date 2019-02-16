@@ -7,5 +7,8 @@
     <string name="navigation_item_all">All</string>
     <string name="navigation_item_unread">Unread</string>
 
+    <string name="sync_error_message">We could not sync your articles. Please try again later.</string>
+    <string name="update_error_message">We could not update the article. Please, try again later.</string>
+
     <string name="article_link_label">Read more …</string>
 </resources>

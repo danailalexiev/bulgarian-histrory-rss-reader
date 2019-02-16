@@ -1,6 +1,7 @@
 package bg.dalexiev.bgHistroryRss.data.repository
 
 import android.content.Context
+import androidx.lifecycle.LiveData
 import bg.dalexiev.bgHistroryRss.core.Provider
 import bg.dalexiev.bgHistroryRss.data.db.ArticleDatabase
 import bg.dalexiev.bgHistroryRss.data.db.dao.ArticleDao
@@ -17,7 +18,7 @@ interface ArticleRepository {
 
     fun sync()
 
-    fun loadArticlePreviews(category: Category?): List<ArticlePreview>
+    fun loadArticlePreviews(category: Category?): LiveData<List<ArticlePreview>>
 
     fun toggleArticleIsFavourite(article: ArticlePreview): ArticlePreview
 
@@ -82,7 +83,7 @@ interface ArticleRepository {
                 }.also { articleToCategoryJoinDao.insert(it) }
             }
 
-        override fun loadArticlePreviews(category: Category?): List<ArticlePreview> =
+        override fun loadArticlePreviews(category: Category?) =
             category?.let { articleDao.loadArticlePreviewsByCategory(it.id!!) } ?: articleDao.loadArticlePreviews()
 
         override fun toggleArticleIsFavourite(article: ArticlePreview): ArticlePreview {

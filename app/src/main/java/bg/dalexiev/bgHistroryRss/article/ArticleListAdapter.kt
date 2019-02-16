@@ -14,7 +14,7 @@ import bg.dalexiev.bgHistroryRss.databinding.ListItemArticleBinding
 
 class ArticleListAdapter(
     private val onShareItemClickListener: (ArticlePreview) -> Unit,
-    private val onFavouriteItemClickListener: (Int, ArticlePreview) -> Unit,
+    private val onFavouriteItemClickListener: (ArticlePreview) -> Unit,
     private val onItemClickListener: (Int, ArticlePreview) -> Unit
 ) :
     RecyclerView.Adapter<ArticleListAdapter.ArticlePreviewViewHolder>() {
@@ -37,34 +37,28 @@ class ArticleListAdapter(
     override fun getItemCount() = differ.currentList.size
 
     override fun onBindViewHolder(holder: ArticlePreviewViewHolder, position: Int) =
-        holder.bind(position, differ.currentList[position])
+        holder.bind(differ.currentList[position])
 
     fun submitList(list: List<ArticlePreview>) {
         differ.submitList(list)
     }
 
-    fun updateItem(position: Int, article: ArticlePreview) {
-//        differ.currentList.removeAt(position)
-//        differ.currentList.add(position, article)
-//        notifyItemChanged(position)
-    }
-
     class ArticlePreviewViewHolder(
         itemView: View,
         private val onShareItemClickListener: (ArticlePreview) -> Unit,
-        private val onFavouriteItemClickListener: (Int, ArticlePreview) -> Unit,
+        private val onFavouriteItemClickListener: (ArticlePreview) -> Unit,
         private val onItemClickListener: (Int, ArticlePreview) -> Unit
     ) :
         RecyclerView.ViewHolder(itemView) {
 
         private val mDataBinding = DataBindingUtil.bind<ListItemArticleBinding>(itemView);
 
-        fun bind(position: Int, item: ArticlePreview) {
+        fun bind(item: ArticlePreview) {
             ViewCompat.setTransitionName(itemView, "article_${item.guid}")
             mDataBinding?.apply {
                 this.item = item
                 articleActionShare.setOnClickListener { onShareItemClickListener(item) }
-                articleActionFavourite.setOnClickListener { onFavouriteItemClickListener(position, item) }
+                articleActionFavourite.setOnClickListener { onFavouriteItemClickListener(item) }
                 root.setOnClickListener { onItemClickListener(adapterPosition, item) }
             }
                 ?.executePendingBindings()
