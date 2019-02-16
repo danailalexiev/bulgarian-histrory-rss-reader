@@ -23,6 +23,8 @@ abstract class ArticleDao : BaseDao<Article> {
     @Query("update articles set is_favourite = not is_favourite where guid = :articleGuid")
     abstract fun toggleArticleIsFavourite(articleGuid: String)
 
+    fun loadArticleByGuid(articleGuid: String) = loadArticleByGuidInternal(articleGuid).distinct()
+
     @Query("select * from articles where guid = :articleGuid")
-    abstract fun loadArticleByGuid(articleGuid: String): Article
+    protected abstract fun loadArticleByGuidInternal(articleGuid: String): LiveData<Article>
 }
