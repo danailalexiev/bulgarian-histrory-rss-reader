@@ -23,6 +23,8 @@ import androidx.transition.Fade
 import androidx.transition.TransitionSet
 import bg.dalexiev.bgHistroryRss.App
 import bg.dalexiev.bgHistroryRss.R
+import bg.dalexiev.bgHistroryRss.core.Event
+import bg.dalexiev.bgHistroryRss.data.entity.ArticlePreview
 import bg.dalexiev.bgHistroryRss.databinding.FragmentArticleListBinding
 
 class ArticleListFragment : Fragment() {
@@ -69,45 +71,39 @@ class ArticleListFragment : Fragment() {
         }
 
         mDataBinding.swipeRefresh.setOnRefreshListener { mViewModel.sync() }
+    }
 
-        mViewModel.articles.observe(viewLifecycleOwner, Observer { articlePreviews ->
-            articlePreviews?.let {
-                mAdapter.submitList(it)
-            }
-        })
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
 
-        mViewModel.error.observe(viewLifecycleOwner, Observer {
-            it?.getContentIfNotHandled()?.let { errorMessageResId ->
-                Toast.makeText(context, errorMessageResId, Toast.LENGTH_SHORT).show()
-            }
-        })
+        mNavController = Navigation.findNavController(activity!!, R.id.nav_host_fragment);
 
-        mViewModel.sharedArticle.observe(viewLifecycleOwner, Observer {
-            it?.getContentIfNotHandled()?.let { link ->
-                with(
-                    createShareIntent(link)
-                ) {
-                    resolveActivity(activity!!.packageManager)?.let { startActivity(this) }
-                }
-            }
-        })
+        mViewModel.apply {
+            articles.observe(viewLifecycleOwner, onArticlesChanged())
+            error.observe(viewLifecycleOwner, onErrorChanged())
+            sharedArticle.observe(viewLifecycleOwner, onSharedArticleChanged())
+            selectedArticle.observe(viewLifecycleOwner, onSelectedArticleChanged())
+        }
+    }
 
-        mViewModel.selectedArticle.observe(viewLifecycleOwner, Observer {
-            it?.getContentIfNotHandled()?.let { positionArticlePair ->
-                val args = Bundle().apply {
-                    putString(
-                        ArticleDetailsFragment.EXTRA_ARTICLE_GUID,
-                        positionArticlePair.second.guid
-                    )
-                }
-                val extras = mDataBinding.articleList.findViewHolderForAdapterPosition(positionArticlePair.first)
-                    ?.let { viewHolder ->
-                        FragmentNavigatorExtras(viewHolder.itemView to ViewCompat.getTransitionName(viewHolder.itemView)!!)
-                    }
-                mNavController
-                    .navigate(R.id.action_articleListFragment_to_articleDetailsFragment, args, null, extras)
+    private fun onArticlesChanged() = Observer<List<ArticlePreview>> { articlePreviews ->
+        articlePreviews?.let {
+            mAdapter.submitList(it)
+        }
+    }
+
+    private fun onErrorChanged() = Observer<Event<Int>> {
+        it?.getContentIfNotHandled()?.let { errorMessageResId ->
+            Toast.makeText(context, errorMessageResId, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun onSharedArticleChanged() = Observer<Event<String>> {
+        it?.getContentIfNotHandled()?.let { link ->
+            with(createShareIntent(link)) {
+                resolveActivity(activity!!.packageManager)?.let { startActivity(this) }
             }
-        })
+        }
     }
 
     private fun createShareIntent(link: String) = ShareCompat.IntentBuilder.from(activity)
@@ -115,11 +111,29 @@ class ArticleListFragment : Fragment() {
         .setText(link)
         .intent
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-
-        mNavController = Navigation.findNavController(activity!!, R.id.nav_host_fragment);
+    private fun onSelectedArticleChanged(): Observer<Event<Pair<Int, ArticlePreview>>> {
+        return Observer {
+            it?.getContentIfNotHandled()?.let { positionArticlePair ->
+                val args = createNavigationArgs(positionArticlePair)
+                val extras = createNavigationExtras(positionArticlePair)
+                mNavController
+                    .navigate(R.id.action_articleListFragment_to_articleDetailsFragment, args, null, extras)
+            }
+        }
     }
+
+    private fun createNavigationArgs(positionArticlePair: Pair<Int, ArticlePreview>) = Bundle().apply {
+        putString(
+            ArticleDetailsFragment.EXTRA_ARTICLE_GUID,
+            positionArticlePair.second.guid
+        )
+    }
+
+    private fun createNavigationExtras(positionArticlePair: Pair<Int, ArticlePreview>) =
+        mDataBinding.articleList.findViewHolderForAdapterPosition(positionArticlePair.first)
+            ?.let { viewHolder ->
+                FragmentNavigatorExtras(viewHolder.itemView to ViewCompat.getTransitionName(viewHolder.itemView)!!)
+            }
 
     private class ItemOffsetDecoration(private val marginInPixels: Int) : RecyclerView.ItemDecoration() {
 
