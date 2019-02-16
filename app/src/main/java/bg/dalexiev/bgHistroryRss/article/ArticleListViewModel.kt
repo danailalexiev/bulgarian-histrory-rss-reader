@@ -1,7 +1,7 @@
 package bg.dalexiev.bgHistroryRss.article
 
-import android.app.Activity
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
@@ -16,6 +16,8 @@ import kotlinx.coroutines.withContext
 
 class ArticleListViewModel(application: Application, private val articleRepo: ArticleRepository) :
     BaseViewModel(application) {
+
+    private val TAG = ArticleListViewModel::class.java.simpleName
 
     val articles: LiveData<State<List<ArticlePreview>>> =
         (Transformations.map(articleRepo.loadArticlePreviews(null)) { State.success(it) })!!
@@ -32,10 +34,9 @@ class ArticleListViewModel(application: Application, private val articleRepo: Ar
     fun sync() {
         scope.launch {
             try {
-                withContext(CoroutineDispatchers.io) {
-                    articleRepo.sync();
-                }
+                withContext(CoroutineDispatchers.io) { articleRepo.sync() }
             } catch (e: Exception) {
+                Log.e(TAG, "Error while syncing", e)
             }
         }
     }
@@ -49,6 +50,7 @@ class ArticleListViewModel(application: Application, private val articleRepo: Ar
             try {
                 withContext(CoroutineDispatchers.io) { articleRepo.toggleArticleIsFavourite(article) }
             } catch (e: Exception) {
+                Log.e(TAG, "Error while syncing", e)
             }
         }
     }

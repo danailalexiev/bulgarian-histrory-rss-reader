@@ -71,7 +71,7 @@ class ArticleListFragment : Fragment() {
 
         mDataBinding.swipeRefresh.setOnRefreshListener { mViewModel.sync() }
 
-        mViewModel.articles.observe(this, Observer { state ->
+        mViewModel.articles.observe(viewLifecycleOwner, Observer { state ->
             when (state) {
                 is State.Loading -> mDataBinding.swipeRefresh.isRefreshing = true
                 is State.Success -> {
@@ -86,7 +86,7 @@ class ArticleListFragment : Fragment() {
             }
         })
 
-        mViewModel.sharedArticle.observe(this, Observer {
+        mViewModel.sharedArticle.observe(viewLifecycleOwner, Observer {
             it?.getContentIfNotHandled()?.let { link ->
                 with(
                     ShareCompat.IntentBuilder.from(activity)
@@ -99,7 +99,7 @@ class ArticleListFragment : Fragment() {
             }
         })
 
-        mViewModel.selectedArticle.observe(this, Observer {
+        mViewModel.selectedArticle.observe(viewLifecycleOwner, Observer {
             it?.getContentIfNotHandled()?.let { positionArticlePair ->
                 val args = Bundle().apply {
                     putString(

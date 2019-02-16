@@ -30,7 +30,7 @@ class ArticleDetailsFragment : Fragment() {
     private lateinit var mDataBinding: FragmentArticleDetailsBinding
 
     private val mViewModel by lazy {
-        ViewModelProviders.of(this, (context!!.applicationContext as App).viewModelFactory)
+        ViewModelProviders.of(activity!!, (context!!.applicationContext as App).viewModelFactory)
             .get(ArticleDetailsViewModel::class.java)
     }
 
@@ -64,7 +64,7 @@ class ArticleDetailsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         ViewCompat.setTransitionName(mDataBinding.root, "article_${arguments?.getString(EXTRA_ARTICLE_GUID)}")
 
-        mViewModel.article.observe(this, Observer { state ->
+        mViewModel.article.observe(viewLifecycleOwner, Observer { state ->
             when (state) {
                 is State.Success -> {
                     mDataBinding.article = state.value
@@ -80,7 +80,7 @@ class ArticleDetailsFragment : Fragment() {
             }
         })
 
-        mViewModel.imageLoaded.observe(this, Observer {
+        mViewModel.imageLoaded.observe(viewLifecycleOwner, Observer {
             it?.getContentIfNotHandled()?.let { scheduleStartPostponedEnterTransition() }
         })
     }
