@@ -1,8 +1,8 @@
 package bg.dalexiev.bgHistroryRss.core
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
-import androidx.lifecycle.Observer
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.*
+import bg.dalexiev.bgHistroryRss.App
 
 fun <T> LiveData<T>.distinct(): LiveData<T> {
     val distinctLiveData = MediatorLiveData<T>()
@@ -30,3 +30,6 @@ fun <T> LiveData<T>.distinct(): LiveData<T> {
 
     return distinctLiveData;
 }
+
+inline fun <reified T : ViewModel> Fragment.getViewModel() =
+    ViewModelProviders.of(this, (context!!.applicationContext as App).viewModelFactory).get(T::class.java)

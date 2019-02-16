@@ -15,8 +15,6 @@ import kotlinx.coroutines.withContext
 class ArticleListViewModel(application: Application, private val articleRepo: ArticleRepository) :
     BaseViewModel(application) {
 
-    private val TAG = ArticleListViewModel::class.java.simpleName
-
     val articles: LiveData<List<ArticlePreview>> = articleRepo.loadArticlePreviews(null)
 
     private val _sharedArticle = MutableLiveData<Event<String>>()

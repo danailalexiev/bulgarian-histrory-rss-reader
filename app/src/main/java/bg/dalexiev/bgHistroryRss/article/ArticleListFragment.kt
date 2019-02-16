@@ -24,6 +24,7 @@ import androidx.transition.TransitionSet
 import bg.dalexiev.bgHistroryRss.App
 import bg.dalexiev.bgHistroryRss.R
 import bg.dalexiev.bgHistroryRss.core.Event
+import bg.dalexiev.bgHistroryRss.core.getViewModel
 import bg.dalexiev.bgHistroryRss.data.entity.ArticlePreview
 import bg.dalexiev.bgHistroryRss.databinding.FragmentArticleListBinding
 
@@ -35,10 +36,7 @@ class ArticleListFragment : Fragment() {
 
     private lateinit var mNavController: NavController
 
-    private val mViewModel by lazy {
-        ViewModelProviders.of(this, (context!!.applicationContext as App).viewModelFactory)
-            .get(ArticleListViewModel::class.java)
-    }
+    private val mViewModel by lazy { getViewModel<ArticleListViewModel>() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
