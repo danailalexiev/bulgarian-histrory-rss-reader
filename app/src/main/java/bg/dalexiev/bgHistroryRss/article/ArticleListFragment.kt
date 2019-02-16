@@ -23,7 +23,6 @@ import androidx.transition.Fade
 import androidx.transition.TransitionSet
 import bg.dalexiev.bgHistroryRss.App
 import bg.dalexiev.bgHistroryRss.R
-import bg.dalexiev.bgHistroryRss.core.State
 import bg.dalexiev.bgHistroryRss.databinding.FragmentArticleListBinding
 
 class ArticleListFragment : Fragment() {
@@ -71,28 +70,22 @@ class ArticleListFragment : Fragment() {
 
         mDataBinding.swipeRefresh.setOnRefreshListener { mViewModel.sync() }
 
-        mViewModel.articles.observe(viewLifecycleOwner, Observer { state ->
-            when (state) {
-                is State.Loading -> mDataBinding.swipeRefresh.isRefreshing = true
-                is State.Success -> {
-                    mDataBinding.swipeRefresh.isRefreshing = false
-                    mAdapter.submitList(state.value)
-                }
-                is State.Failure -> {
-                    mDataBinding.swipeRefresh.isRefreshing = false
-                    Toast.makeText(this@ArticleListFragment.context, "Error while loading articles", Toast.LENGTH_LONG)
-                        .show()
-                }
+        mViewModel.articles.observe(viewLifecycleOwner, Observer { articlePreviews ->
+            articlePreviews?.let {
+                mAdapter.submitList(it)
+            }
+        })
+
+        mViewModel.error.observe(viewLifecycleOwner, Observer {
+            it?.getContentIfNotHandled()?.let { errorMessageResId ->
+                Toast.makeText(context, errorMessageResId, Toast.LENGTH_SHORT).show()
             }
         })
 
         mViewModel.sharedArticle.observe(viewLifecycleOwner, Observer {
             it?.getContentIfNotHandled()?.let { link ->
                 with(
-                    ShareCompat.IntentBuilder.from(activity)
-                        .setType("texp/plain")
-                        .setText(link)
-                        .intent
+                    createShareIntent(link)
                 ) {
                     resolveActivity(activity!!.packageManager)?.let { startActivity(this) }
                 }
@@ -116,6 +109,11 @@ class ArticleListFragment : Fragment() {
             }
         })
     }
+
+    private fun createShareIntent(link: String) = ShareCompat.IntentBuilder.from(activity)
+        .setType("texp/plain")
+        .setText(link)
+        .intent
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)

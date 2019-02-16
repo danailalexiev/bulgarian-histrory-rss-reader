@@ -1,14 +1,12 @@
 package bg.dalexiev.bgHistroryRss.article
 
 import android.app.Application
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
+import bg.dalexiev.bgHistroryRss.R
 import bg.dalexiev.bgHistroryRss.core.BaseViewModel
 import bg.dalexiev.bgHistroryRss.core.CoroutineDispatchers
 import bg.dalexiev.bgHistroryRss.core.Event
-import bg.dalexiev.bgHistroryRss.core.State
 import bg.dalexiev.bgHistroryRss.data.entity.ArticlePreview
 import bg.dalexiev.bgHistroryRss.data.repository.ArticleRepository
 import kotlinx.coroutines.launch
@@ -19,8 +17,7 @@ class ArticleListViewModel(application: Application, private val articleRepo: Ar
 
     private val TAG = ArticleListViewModel::class.java.simpleName
 
-    val articles: LiveData<State<List<ArticlePreview>>> =
-        (Transformations.map(articleRepo.loadArticlePreviews(null)) { State.success(it) })!!
+    val articles: LiveData<List<ArticlePreview>> = articleRepo.loadArticlePreviews(null)
 
     private val _sharedArticle = MutableLiveData<Event<String>>()
     val sharedArticle: LiveData<Event<String>>
@@ -30,13 +27,16 @@ class ArticleListViewModel(application: Application, private val articleRepo: Ar
     val selectedArticle: LiveData<Event<Pair<Int, ArticlePreview>>>
         get() = _selectedArticle
 
+    private val _error = MutableLiveData<Event<Int>>()
+    val error: LiveData<Event<Int>>
+        get() = _error
 
     fun sync() {
         scope.launch {
             try {
                 withContext(CoroutineDispatchers.io) { articleRepo.sync() }
             } catch (e: Exception) {
-                Log.e(TAG, "Error while syncing", e)
+                _error.value = Event(R.string.sync_error_message)
             }
         }
     }
@@ -50,7 +50,7 @@ class ArticleListViewModel(application: Application, private val articleRepo: Ar
             try {
                 withContext(CoroutineDispatchers.io) { articleRepo.toggleArticleIsFavourite(article) }
             } catch (e: Exception) {
-                Log.e(TAG, "Error while syncing", e)
+                _error.value = Event(R.string.update_error_message)
             }
         }
     }
