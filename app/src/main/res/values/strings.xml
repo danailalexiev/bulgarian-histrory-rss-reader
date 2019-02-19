@@ -11,4 +11,6 @@
     <string name="update_error_message">We could not update the article. Please, try again later.</string>
 
     <string name="article_link_label">Read more …</string>
+
+    <string name="article_details_share_label">Share link</string>
 </resources>
