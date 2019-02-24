@@ -5,8 +5,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import bg.dalexiev.bgHistroryRss.core.BaseViewModel
+import bg.dalexiev.bgHistroryRss.core.CoroutineDispatchers
 import bg.dalexiev.bgHistroryRss.core.Event
 import bg.dalexiev.bgHistroryRss.data.repository.ArticleRepository
+import kotlinx.coroutines.launch
 
 class ArticleDetailsViewModel(application: Application, private val articleRepo: ArticleRepository) :
     BaseViewModel(application) {
@@ -32,5 +34,11 @@ class ArticleDetailsViewModel(application: Application, private val articleRepo:
 
     fun onShareLinkClicked() {
         _sharedLink.value = article.value?.let { Event(it.link) }
+    }
+
+    fun onMarkAsUnreadClicked() {
+        scope.launch(CoroutineDispatchers.io) {
+            articleRepo.updateArticleIsRead(article.value!!.guid, false)
+        }
     }
 }

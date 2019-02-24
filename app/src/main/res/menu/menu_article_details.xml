@@ -7,4 +7,8 @@
             android:title="@string/article_details_share_label"
             app:showAsAction="never"/>
 
+    <item
+            android:id="@+id/article_details_mark_as_unread"
+            android:title="@string/article_details_mark_as_unread_label"
+            app:showAsAction="never"/>
 </menu>

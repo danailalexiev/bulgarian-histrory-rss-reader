@@ -54,6 +54,9 @@ class ArticleListViewModel(application: Application, private val articleRepo: Ar
     }
 
     fun onArticleClicked(position: Int, article: ArticlePreview) {
-        _selectedArticle.value = Event(position to article)
+        scope.launch {
+            withContext(CoroutineDispatchers.io) { articleRepo.updateArticleIsRead(article.guid, true) }
+            _selectedArticle.value = Event(position to article)
+        }
     }
 }

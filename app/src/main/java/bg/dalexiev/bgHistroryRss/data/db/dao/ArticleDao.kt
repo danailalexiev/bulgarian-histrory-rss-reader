@@ -3,7 +3,9 @@ package bg.dalexiev.bgHistroryRss.data.db.dao
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
+import androidx.room.TypeConverters
 import bg.dalexiev.bgHistroryRss.core.distinct
+import bg.dalexiev.bgHistroryRss.data.db.converter.BooleanTypeConverter
 import bg.dalexiev.bgHistroryRss.data.entity.Article
 import bg.dalexiev.bgHistroryRss.data.entity.ArticlePreview
 
@@ -27,4 +29,8 @@ abstract class ArticleDao : BaseDao<Article> {
 
     @Query("select * from articles where guid = :articleGuid")
     protected abstract fun loadArticleByGuidInternal(articleGuid: String): LiveData<Article>
+
+    @Query("update articles set is_read = :isRead where guid = :articleGuid")
+    @TypeConverters(value = [BooleanTypeConverter::class])
+    abstract fun updateReadState(articleGuid: String, isRead: Boolean)
 }

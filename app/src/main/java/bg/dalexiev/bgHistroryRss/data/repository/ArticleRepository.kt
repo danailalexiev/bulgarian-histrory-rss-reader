@@ -24,6 +24,8 @@ interface ArticleRepository {
 
     fun loadArticleByGuid(guid: String): LiveData<Article>
 
+    fun updateArticleIsRead(guid: String, isRead: Boolean)
+
     companion object : Provider<ArticleRepository, Context>() {
 
         override fun create(param: Context): ArticleRepository {
@@ -46,6 +48,7 @@ interface ArticleRepository {
         private val articleToCategoryJoinDao: ArticleToCategoryJoinDao,
         private val db: ArticleDatabase
     ) : ArticleRepository {
+
         override fun sync() {
             decomposition(service.loadFeed().items).also { persist(it) }
         }
@@ -93,5 +96,6 @@ interface ArticleRepository {
 
         override fun loadArticleByGuid(guid: String) = articleDao.loadArticleByGuid(guid)
 
+        override fun updateArticleIsRead(guid: String, isRead: Boolean) = articleDao.updateReadState(guid, isRead)
     }
 }
