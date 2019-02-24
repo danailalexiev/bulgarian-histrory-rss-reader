@@ -46,7 +46,7 @@ class ArticleListViewModel(application: Application, private val articleRepo: Ar
     fun onToggleArticleClicked(article: ArticlePreview) {
         scope.launch {
             try {
-                withContext(CoroutineDispatchers.io) { articleRepo.toggleArticleIsFavourite(article) }
+                withContext(CoroutineDispatchers.io) { articleRepo.toggleArticleIsFavourite(article.guid) }
             } catch (e: Exception) {
                 _error.value = Event(R.string.update_error_message)
             }

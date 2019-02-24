@@ -20,7 +20,7 @@ interface ArticleRepository {
 
     fun loadArticlePreviews(category: Category?): LiveData<List<ArticlePreview>>
 
-    fun toggleArticleIsFavourite(article: ArticlePreview): ArticlePreview
+    fun toggleArticleIsFavourite(guid: String)
 
     fun loadArticleByGuid(guid: String): LiveData<Article>
 
@@ -89,9 +89,8 @@ interface ArticleRepository {
         override fun loadArticlePreviews(category: Category?) =
             category?.let { articleDao.loadArticlePreviewsByCategory(it.id!!) } ?: articleDao.loadArticlePreviews()
 
-        override fun toggleArticleIsFavourite(article: ArticlePreview): ArticlePreview {
-            articleDao.toggleArticleIsFavourite(article.guid)
-            return article.copy(isFavourite = !article.isFavourite)
+        override fun toggleArticleIsFavourite(guid: String) {
+            articleDao.toggleArticleIsFavourite(guid)
         }
 
         override fun loadArticleByGuid(guid: String) = articleDao.loadArticleByGuid(guid)

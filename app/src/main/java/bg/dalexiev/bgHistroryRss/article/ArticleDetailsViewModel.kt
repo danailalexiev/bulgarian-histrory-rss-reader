@@ -32,13 +32,15 @@ class ArticleDetailsViewModel(application: Application, private val articleRepo:
         _imageLoaded.value = Event(Unit)
     }
 
+    fun onToggleFavouriteClicked() {
+        scope.launch(CoroutineDispatchers.io) { articleRepo.toggleArticleIsFavourite(article.value!!.guid)}
+    }
+
     fun onShareLinkClicked() {
         _sharedLink.value = article.value?.let { Event(it.link) }
     }
 
     fun onMarkAsUnreadClicked() {
-        scope.launch(CoroutineDispatchers.io) {
-            articleRepo.updateArticleIsRead(article.value!!.guid, false)
-        }
+        scope.launch(CoroutineDispatchers.io) { articleRepo.updateArticleIsRead(article.value!!.guid, false) }
     }
 }
