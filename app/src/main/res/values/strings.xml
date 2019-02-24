@@ -13,4 +13,5 @@
     <string name="article_link_label">Read more …</string>
 
     <string name="article_details_share_label">Share link</string>
+    <string name="article_details_mark_as_unread_label">Mark as unread</string>
 </resources>
