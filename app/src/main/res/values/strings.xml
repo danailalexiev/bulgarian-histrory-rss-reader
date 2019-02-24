@@ -12,6 +12,8 @@
 
     <string name="article_link_label">Read more …</string>
 
+    <string name="article_details_add_favourite_label">Add to favourite</string>
+    <string name="article_details_remove_favourite_label">Remove from favourites</string>
     <string name="article_details_share_label">Share link</string>
     <string name="article_details_mark_as_unread_label">Mark as unread</string>
 </resources>

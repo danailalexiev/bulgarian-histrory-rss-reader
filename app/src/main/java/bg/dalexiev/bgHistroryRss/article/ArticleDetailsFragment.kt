@@ -2,6 +2,7 @@ package bg.dalexiev.bgHistroryRss.article
 
 import android.os.Bundle
 import android.view.*
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -27,6 +28,8 @@ class ArticleDetailsFragment : Fragment() {
     private lateinit var mDataBinding: FragmentArticleDetailsBinding
 
     private val mViewModel by lazy { getViewModel<ArticleDetailsViewModel>() }
+
+    private var mFavouriteMenuIcon: MenuItem? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -76,8 +79,24 @@ class ArticleDetailsFragment : Fragment() {
 
     private fun onArticleChanged() = Observer<Article> { article ->
         article?.let {
+            updateFavouriteMenuItemState(it)
             mDataBinding.article = it
             mDataBinding.executePendingBindings()
+        }
+    }
+
+    private fun updateFavouriteMenuItemState(article: Article) {
+        mFavouriteMenuIcon?.apply {
+            title = if (article.isFavourite) {
+                getString(R.string.article_details_remove_favourite_label)
+            } else {
+                getString(R.string.article_details_add_favourite_label)
+            }
+            icon = if (article.isFavourite) {
+                ContextCompat.getDrawable(context!!, R.drawable.ic_favourite_24px)
+            } else {
+                ContextCompat.getDrawable(context!!, R.drawable.ic_not_favourite_24px)
+            }
         }
     }
 
@@ -104,14 +123,28 @@ class ArticleDetailsFragment : Fragment() {
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu_article_details, menu)
+        mFavouriteMenuIcon = menu.findItem(R.id.article_details_favourite)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (R.id.article_details_share == item.itemId) {
-            mViewModel.onShareLinkClicked();
-            return true
+    override fun onPrepareOptionsMenu(menu: Menu) {
+        mViewModel.article.value?.let {
+            updateFavouriteMenuItemState(it)
         }
+    }
 
-        return super.onOptionsItemSelected(item);
+    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
+        R.id.article_details_favourite -> {
+            mViewModel.onToggleFavouriteClicked()
+            true
+        }
+        R.id.article_details_share -> {
+            mViewModel.onShareLinkClicked()
+            true
+        }
+        R.id.article_details_mark_as_unread -> {
+            mViewModel.onMarkAsUnreadClicked()
+            true
+        }
+        else -> super.onOptionsItemSelected(item)
     }
 }

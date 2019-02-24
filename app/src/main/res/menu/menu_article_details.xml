@@ -3,6 +3,12 @@
       xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/article_details_favourite"
+        android:title="@string/article_details_add_favourite_label"
+        android:icon="@drawable/ic_not_favourite_24px"
+        app:showAsAction="ifRoom" />
+
+    <item
             android:id="@+id/article_details_share"
             android:title="@string/article_details_share_label"
             app:showAsAction="never"/>
