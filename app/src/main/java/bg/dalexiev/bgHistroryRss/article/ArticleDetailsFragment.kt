@@ -1,10 +1,7 @@
 package bg.dalexiev.bgHistroryRss.article
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.view.ViewTreeObserver
+import android.view.*
 import androidx.core.view.ViewCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -15,6 +12,7 @@ import androidx.transition.TransitionSet
 import bg.dalexiev.bgHistroryRss.R
 import bg.dalexiev.bgHistroryRss.core.Event
 import bg.dalexiev.bgHistroryRss.core.getViewModel
+import bg.dalexiev.bgHistroryRss.core.shareText
 import bg.dalexiev.bgHistroryRss.data.entity.Article
 import bg.dalexiev.bgHistroryRss.databinding.FragmentArticleDetailsBinding
 
@@ -38,6 +36,7 @@ class ArticleDetailsFragment : Fragment() {
             .addTransition(ChangeBounds())
             .addTransition(ChangeTransform())
 
+        setHasOptionsMenu(true)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -67,6 +66,7 @@ class ArticleDetailsFragment : Fragment() {
         mViewModel.apply {
             article.observe(viewLifecycleOwner, onArticleChanged())
             imageLoaded.observe(viewLifecycleOwner, onArticleImageLoadedFailed())
+            sharedLink.observe(viewLifecycleOwner, onSharedLinkChanged())
         }
 
         arguments?.getString(EXTRA_ARTICLE_GUID)?.let {
@@ -96,5 +96,22 @@ class ArticleDetailsFragment : Fragment() {
                 }
             })
         }
+    }
+
+    private fun onSharedLinkChanged() = Observer<Event<String>> {
+        it?.getContentIfNotHandled()?.let { link -> shareText(link) }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_article_details, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (R.id.article_details_share == item.itemId) {
+            mViewModel.onShareLinkClicked();
+            return true
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 }

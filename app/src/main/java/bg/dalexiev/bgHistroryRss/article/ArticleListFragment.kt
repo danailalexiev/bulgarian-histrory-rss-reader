@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.core.app.ShareCompat
 import androidx.core.view.ViewCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -23,6 +22,7 @@ import androidx.transition.TransitionSet
 import bg.dalexiev.bgHistroryRss.R
 import bg.dalexiev.bgHistroryRss.core.Event
 import bg.dalexiev.bgHistroryRss.core.getViewModel
+import bg.dalexiev.bgHistroryRss.core.shareText
 import bg.dalexiev.bgHistroryRss.data.entity.ArticlePreview
 import bg.dalexiev.bgHistroryRss.databinding.FragmentArticleListBinding
 
@@ -95,17 +95,8 @@ class ArticleListFragment : Fragment() {
     }
 
     private fun onSharedArticleChanged() = Observer<Event<String>> {
-        it?.getContentIfNotHandled()?.let { link ->
-            with(createShareIntent(link)) {
-                resolveActivity(activity!!.packageManager)?.let { startActivity(this) }
-            }
-        }
+        it?.getContentIfNotHandled()?.let { link -> shareText(link) }
     }
-
-    private fun createShareIntent(link: String) = ShareCompat.IntentBuilder.from(activity)
-        .setType("texp/plain")
-        .setText(link)
-        .intent
 
     private fun onSelectedArticleChanged(): Observer<Event<Pair<Int, ArticlePreview>>> {
         return Observer {
